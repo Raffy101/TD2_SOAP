@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page de decision</title>
+</head>
+<body>
+    <h1>Page de decision</h1>
+    <form method="POST" action="{{ url_for('decision') }}">
+        <label for="nom">Entrez votre nom :</label>
+        <input type="text" id="nom" name="nom">
+        <input type="submit" value="Rechercher">
+    </form>
+    {% if message and nom %}
+    <table border="1">
+        <tr>
+            <th>Nom</th>
+            <th>Résultat</th>
+        </tr>
+        <tr>
+            <td>{{ nom }}</td>
+            <td>{{ message }}</td>
+        </tr>
+    </table>
+    {% endif %}
+    <a href="{{ url_for('upload_file') }}"><button>Formulaire de dépôt de demande de prêt</button></a>
+</body>
+</html>

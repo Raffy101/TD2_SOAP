@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulaire de dépôt de demande de prêt </title>
+</head>
+<body>
+    <h1>Formulaire de dépôt de demande de prêt</h1>
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file') }}">
+        <input type="file" name="fichier"><br>
+        <input type="submit" value="Envoyer">
+    </form><br>
+    
+    <br>
+    <h2>OU</h2>
+    <br>
+  <form method="POST" action="{{ url_for('creer_fichier') }}" enctype="multipart/form-data">
+      <label for="nom">Nom :</label>
+        <input type="text" id="nom" name="nom" placeholder="Saisissez votre nom" required>
+      <br>
+      <textarea name="texte" rows="10" cols="50" placeholder="Saisissez votre texte ici" required></textarea>
+      <br>
+      <input type="submit" value="Envoyer la demande">
+  </form>
+  <br><br>
+  <br><br>
+  {% if message %}
+    <p><b>{{ message }}</b></p>
+    {% endif %}
+  <br>
+    <a href="{{ url_for('decision') }}"><button>Page de Decision</button></a>
+</body>
+</html>
