@@ -2,15 +2,11 @@
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
-import sqlite3
-
 import requests
-from fastapi import Depends, Request, File, UploadFile
+from fastapi import Request, File, UploadFile
 from fastapi.templating import Jinja2Templates
-from typing import Annotated
 from utils import *
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
 '''
 ###########################################################################
 

@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, Sequence, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import declarative_base,sessionmaker, relationship
 from passlib.context import CryptContext
 

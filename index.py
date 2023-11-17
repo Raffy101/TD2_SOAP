@@ -7,9 +7,8 @@ from APIs.API_EvaluationPropriete import router as routerEvaluationPropriete
 from APIs.API_CalculScore import router as routerCalculScore
 from APIs.API_DecisionApprobation import router as routerDecisionApprobation
 from utils import router as routerGetCurrentUserActive
-from fastapi import Depends,FastAPI, APIRouter, HTTPException, status, File, UploadFile, Request, Header
+from fastapi import Depends,FastAPI, APIRouter, HTTPException, status
 import uvicorn
-from multiprocessing import Process, Manager
 from API_Main import Handler
 import time
 from watchdog.observers import Observer

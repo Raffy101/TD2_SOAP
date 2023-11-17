@@ -1,14 +1,12 @@
 #pip install twisted
 #pip install spyne 
 
-from fastapi import FastAPI, HTTPException, Depends, status, APIRouter
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import FastAPI, Depends, status, APIRouter
 import uvicorn
 import os
 import spacy
 import re
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import Annotated
+from fastapi.security import OAuth2PasswordBearer
 from fastapi.security import OAuth2PasswordBearer
 from utils import *
 from fastapi.responses import RedirectResponse
