@@ -1,13 +1,12 @@
 from fastapi import FastAPI,Depends,HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
-from DataBase.bd import User
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, Sequence
-from sqlalchemy.orm import declarative_base,sessionmaker
+from sqlalchemy import create_engine, Column, Integer, String, Sequence, ForeignKey
+from sqlalchemy.orm import declarative_base,sessionmaker, relationship
 from passlib.context import CryptContext
 
 engine = create_engine('sqlite:///./DataBase/baseDonneeClients.db', echo=False)
@@ -39,6 +38,28 @@ class User(Base):
     username = Column(String(50))
     password = Column(String(50))
     email = Column(String(50))
+    stats = relationship('StatistiquesClient', back_populates='user')
+    transactions = relationship('Transactions', back_populates='user')
+
+class StatistiquesClient(Base):
+    __tablename__ = 'statistiquesClient'
+    id = Column(Integer, primary_key=True, index=True)
+    id_Client = Column(Integer, ForeignKey("users.id"))
+    total_credit = Column(Integer)
+    nb_faillites = Column(Integer)
+    nb_retards = Column(Integer)
+    user = relationship('User', back_populates='stats')
+
+class Transactions(Base):
+    __tablename__ = 'transactions'
+    id = Column(Integer, primary_key=True, index=True)
+    id_Client = Column(Integer, ForeignKey('users.id'))
+    montant = Column(Integer)
+    date_payement = Column(String(15))
+    user = relationship('User', back_populates='transactions')
+
+def is_allowed_file(filename): 
+  return filename.lower().endswith(".txt")
     
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)

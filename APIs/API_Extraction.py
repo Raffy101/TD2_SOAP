@@ -11,6 +11,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer
 from utils import *
+from fastapi.responses import RedirectResponse
 
 '''
 ###########################################################################
@@ -37,10 +38,10 @@ token_Extraction = "AHshhxhczcrfkrvfkfnvrepdazdede"
 @app.post('/creationDonneeClients')
 async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth2_scheme)):
     
-    print("current_user=", token)
-    if not token :
-        print("INVALID TOKEN !")
-        return
+    print("current_user_token =", token)
+    if token == 'None' or token == None:
+        message = "Authorization Needed !"
+        return RedirectResponse(url=f"http://localhost:8000/?message={message}", status_code=status.HTTP_303_SEE_OTHER)
 
     """if credentials.credentials != token_Extraction:
         raise HTTPException(

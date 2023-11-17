@@ -2,14 +2,14 @@ import os
 import spacy
 from API_Main import router as routerMain
 from APIs.API_Extraction import router as routerExtraction
-from APIs.API_VerifSolvabilité import router as routerVerifSolvabilité
-from APIs.API_EvaluationPropriété import router as routerEvaluationPropriété
+from APIs.API_VerifSolvabilite import router as routerVerifSolvabilite
+from APIs.API_EvaluationPropriete import router as routerEvaluationPropriete
 from APIs.API_CalculScore import router as routerCalculScore
 from APIs.API_DecisionApprobation import router as routerDecisionApprobation
 from utils import router as routerGetCurrentUserActive
 from fastapi import Depends,FastAPI, APIRouter, HTTPException, status, File, UploadFile, Request, Header
 import uvicorn
-from multiprocessing import Process
+from multiprocessing import Process, Manager
 from API_Main import Handler
 import time
 from watchdog.observers import Observer
@@ -45,8 +45,8 @@ app = FastAPI()
 router = APIRouter()
 app.include_router(routerMain)
 app.include_router(routerExtraction)
-app.include_router(routerVerifSolvabilité)
-app.include_router(routerEvaluationPropriété)
+app.include_router(routerVerifSolvabilite)
+app.include_router(routerEvaluationPropriete)
 app.include_router(routerCalculScore)
 app.include_router(routerDecisionApprobation)
 app.include_router(routerGetCurrentUserActive)
@@ -56,8 +56,7 @@ directory = "./DemandesClients/"
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 current_user = None
-def is_allowed_file(filename): 
-  return filename.lower().endswith(".txt")
+
 
 """@router.get("/items")
 @app.get("/items")
@@ -91,6 +90,10 @@ async def login(request: Request,form_data: Annotated[OAuth2PasswordRequestForm,
     )
     global current_user
     current_user = access_token
+    print("Connected ! voici ton token =", current_user)
+    """response = RedirectResponse("/mainAPI")
+    response.set_cookie(key="access_token", value=current_user, httponly=True)
+    return response"""
     return templates.TemplateResponse("index.html", {"request": request,"access_token": access_token , "token_type": "bearer"})
 
 
@@ -109,35 +112,11 @@ def decision(request: Request, nom: str = None):
 
 @router.get("/")
 @app.get('/', response_class=HTMLResponse)
-def accueil(request: Request, message=None):
-    return templates.TemplateResponse("index.html" ,{"request": request})
+def accueil(request: Request, message: str = None):
+    if message == None: message = ""
+    return templates.TemplateResponse("index.html" ,{"request": request, "message" : message})
 
-@router.post("/upload_file")
-@app.post('/upload_file')
-def upload_file(request: Request, message : str = None, file: UploadFile = File(...)):
-    if message is not None:
-        return templates.TemplateResponse("index.html", {"request": request,"message": message})
-        
-    if file is None:
-        return templates.TemplateResponse("index.html", {"request": request,"message": "Aucun fichier sélectionné."})
-    
-    print("tetset")
-    # Vérifie si le nom du fichier est vide
-    if file.filename == '':
-        return templates.TemplateResponse("index.html", {"request": request,"message": "Nom de fichier vide."})
-
-    if file and is_allowed_file(file.filename):
-        # Enregistrez le fichier s'il a l'extension autorisée
-        with open(directory+file.filename, "wb") as file_object:
-            file_object.write(file.file.read())
-        global current_user
-        message="Fichier '{}' téléchargé avec succès.".format(file.filename)
-        response = RedirectResponse("/mainAPI")
-        response.set_cookie(key="access_token", value=current_user, httponly=True)
-        return response
-    else:
-        return templates.TemplateResponse("index.html", {"request": request,"message": "Extension de fichier non autorisée. Les fichiers .txt sont autorisés."})
-    
+  
     
 @router.post("/cree_fichier")
 @app.post('/cree_fichier')
@@ -156,22 +135,19 @@ def creer_fichier(request: Request, texte: str = None):
             nomFichier = directory+'demande_de_'+nom+'.txt'
         else:
             message="Erreur durant l'exécution de la procédure, des informations sont manquantes ! \n Veuillez vous assurer de renseigner dans la demande : \n NomduClient, la description de la propriété, les revenus Mensuels et les depenses mensuelles"
-            return RedirectResponse(url="/?message={message}")
+            return RedirectResponse(url=f"/?message={message}")
 
         with open(nomFichier, 'w') as fichier:
             fichier.write(texte)
         message="La demande a été envoyé avec succès."    
-        return RedirectResponse(url="/?message={message}")
+        return RedirectResponse(url=f"/?message={message}")
     
     message="Aucun client trouvé avec ce nom."
-    return RedirectResponse(url="/?message={message}")
+    return RedirectResponse(url=f"/?message={message}")
 
 app.include_router(router)
 
-def run_fastapi():
-    uvicorn.run(app, host="localhost", port=8000)
-
-def surveillance():
+if __name__ == '__main__':
     chemin_dossier = ".\DemandesClients"
 
     event_handler = Handler()
@@ -180,23 +156,13 @@ def surveillance():
 
     print(f"Surveillance du dossier : {chemin_dossier}")
     observer.start()
+    uvicorn.run(app, host="localhost", port=8000)
     try:
         while True:
             time.sleep(5)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
-
-if __name__ == '__main__':
-    process_fastapi = Process(target=run_fastapi)
-    process_surveillance = Process(target=surveillance)
-
-    process_fastapi.start()
-    process_surveillance.start()
-
-    process_fastapi.join()
-    process_surveillance.join()
-    session.close()
     #uvicorn.run(appAPI, host="localhost", port=8000)
     #app.run(debug=True)
     
