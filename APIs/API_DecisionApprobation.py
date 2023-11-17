@@ -26,7 +26,7 @@ router = APIRouter()
 
 @router.post("/decision_credit")
 @app.post('/decision_credit')
-async def decision_credit_endpoint(solvabilite : int, current_user: Annotated[User, Depends(get_current_user)]):
+async def decision_credit_endpoint(solvabilite : int, token: str = Depends(oauth2_scheme)):
 
     """if credentials.credentials != token_DecisionApprob:
         raise HTTPException(

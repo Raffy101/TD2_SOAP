@@ -1,12 +1,13 @@
 import os
 import spacy
+from API_Main import router as routerMain
 from APIs.API_Extraction import router as routerExtraction
 from APIs.API_VerifSolvabilité import router as routerVerifSolvabilité
 from APIs.API_EvaluationPropriété import router as routerEvaluationPropriété
 from APIs.API_CalculScore import router as routerCalculScore
 from APIs.API_DecisionApprobation import router as routerDecisionApprobation
 from utils import router as routerGetCurrentUserActive
-from fastapi import Depends,FastAPI, APIRouter, HTTPException, status, File, UploadFile, Request
+from fastapi import Depends,FastAPI, APIRouter, HTTPException, status, File, UploadFile, Request, Header
 import uvicorn
 from multiprocessing import Process
 from API_Main import Handler
@@ -42,6 +43,7 @@ Description : Notre Fonction Index nous sert à pouvoir réaliser notre
 app = FastAPI()
 
 router = APIRouter()
+app.include_router(routerMain)
 app.include_router(routerExtraction)
 app.include_router(routerVerifSolvabilité)
 app.include_router(routerEvaluationPropriété)
@@ -53,7 +55,7 @@ directory = "./DemandesClients/"
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-
+current_user = None
 def is_allowed_file(filename): 
   return filename.lower().endswith(".txt")
 
@@ -87,7 +89,8 @@ async def login(request: Request,form_data: Annotated[OAuth2PasswordRequestForm,
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    
+    global current_user
+    current_user = access_token
     return templates.TemplateResponse("index.html", {"request": request,"access_token": access_token , "token_type": "bearer"})
 
 
@@ -106,7 +109,7 @@ def decision(request: Request, nom: str = None):
 
 @router.get("/")
 @app.get('/', response_class=HTMLResponse)
-def accueil(request: Request):
+def accueil(request: Request, message=None):
     return templates.TemplateResponse("index.html" ,{"request": request})
 
 @router.post("/upload_file")
@@ -127,7 +130,11 @@ def upload_file(request: Request, message : str = None, file: UploadFile = File(
         # Enregistrez le fichier s'il a l'extension autorisée
         with open(directory+file.filename, "wb") as file_object:
             file_object.write(file.file.read())
-        return templates.TemplateResponse("index.html", {"request": request,"message": "Fichier '{}' téléchargé avec succès.".format(file.filename)})
+        global current_user
+        message="Fichier '{}' téléchargé avec succès.".format(file.filename)
+        response = RedirectResponse("/mainAPI")
+        response.set_cookie(key="access_token", value=current_user, httponly=True)
+        return response
     else:
         return templates.TemplateResponse("index.html", {"request": request,"message": "Extension de fichier non autorisée. Les fichiers .txt sont autorisés."})
     
@@ -148,14 +155,16 @@ def creer_fichier(request: Request, texte: str = None):
         if nom:
             nomFichier = directory+'demande_de_'+nom+'.txt'
         else:
-            return RedirectResponse(url="/", message="Erreur durant l'exécution de la procédure, des informations sont manquantes ! \n Veuillez vous assurer de renseigner dans la demande : \n NomduClient, la description de la propriété, les revenus Mensuels et les depenses mensuelles")
+            message="Erreur durant l'exécution de la procédure, des informations sont manquantes ! \n Veuillez vous assurer de renseigner dans la demande : \n NomduClient, la description de la propriété, les revenus Mensuels et les depenses mensuelles"
+            return RedirectResponse(url="/?message={message}")
 
         with open(nomFichier, 'w') as fichier:
             fichier.write(texte)
-            
-        return RedirectResponse(url="/", message="La demande a été envoyé avec succès.")
-
-    return RedirectResponse(url="/", message="Aucun client trouvé avec ce nom.")
+        message="La demande a été envoyé avec succès."    
+        return RedirectResponse(url="/?message={message}")
+    
+    message="Aucun client trouvé avec ce nom."
+    return RedirectResponse(url="/?message={message}")
 
 app.include_router(router)
 

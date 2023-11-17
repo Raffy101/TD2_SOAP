@@ -24,7 +24,7 @@ router = APIRouter()
 
 @router.post("/evaluation_propriete")
 @app.post('/evaluation_propriete')
-async def evaluation_propriete(description : str, current_user: Annotated[User, Depends(get_current_user)]):
+async def evaluation_propriete(description : str, token: str = Depends(oauth2_scheme)):
     
     """if credentials.credentials != token_EvalProp:
         raise HTTPException(

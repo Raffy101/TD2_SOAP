@@ -5,9 +5,12 @@ import time
 import sqlite3
 
 import requests
-from fastapi import Depends
+from fastapi import Depends, Request
+from fastapi.templating import Jinja2Templates
 from typing import Annotated
 from utils import *
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 '''
 ###########################################################################
 
@@ -39,11 +42,28 @@ token_secret_DecisionApprob = "cqsdzdaSvrepdazdede"
 headers = {
     'Content-Type': 'application/json',
 }
+app = FastAPI()
+router = APIRouter()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+token= None
+
+@router.post("/mainAPI")
+@app.post('/mainAPI')
+async def mainAPI(request: Request):
+    cookies = request.cookies
+    print("Cookie=", cookies)
+    global token
+    token = cookies["access_token"]
+    message = "La demande a été envoyé avec succès."
+    return RedirectResponse(url="/?message={message}")
+
 
 class Handler(FileSystemEventHandler):
     
     def on_modified(self, event):
-    
+        
         # Créer une connexion à la base de données
         conn = sqlite3.connect('./DataBase/BaseDeDonneesClients.db')
         # Créer un curseur pour exécuter des requêtes
@@ -59,10 +79,11 @@ class Handler(FileSystemEventHandler):
         print(event.src_path)
 
         try:
+            headers['Authorization'] = f"Bearer {token}"
             donneeClient = requests.post(api_Extraction_url, params=data, headers=headers).json()
             print("requete : ",donneeClient)
             #print(donneeClient["RevenuMensuel"])
-
+            
             if (donneeClient["NomDuClient"] == "" or donneeClient["DescriptionPropriete"] == "" or donneeClient["RevenuMensuel"] == "" or donneeClient["DepensesMensuelles"] == "") :
                 print("Erreur durant l'exécution de la procédure des informations sont manquantes !")
                 print("Veuillez vous assurer de renseigner dans la demande :\n NomduClient, la description de la propriété, les revenus Mensuels et les depenses mensuelles\n")
@@ -153,6 +174,7 @@ class Handler(FileSystemEventHandler):
         cur.close()
         conn.close()
 
+app.include_router(router)
 if __name__ == '__main__':
 
     chemin_dossier = ".\DemandesClients"

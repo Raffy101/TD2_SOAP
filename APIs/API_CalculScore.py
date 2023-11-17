@@ -24,7 +24,7 @@ router = APIRouter()
 
 @router.post("/calcul_score")
 @app.post('/calcul_score')
-async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankRuptcy: int, current_user: Annotated[User, Depends(get_current_user)]):
+async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankRuptcy: int, token: str = Depends(oauth2_scheme)):
     
     # Sécurité : check du token
     """if credentials.credentials != token_CalculScore:

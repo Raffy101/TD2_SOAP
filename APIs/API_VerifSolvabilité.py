@@ -26,7 +26,7 @@ router = APIRouter()
 
 @router.post("/verification_solvabilite")
 @app.post('/verification_solvabilite')
-def verification_solvabilite(salaireMensuel : str, depenseMensuel : str, calcul_score : int, current_user: Annotated[User, Depends(get_current_user)]):
+def verification_solvabilite(salaireMensuel : str, depenseMensuel : str, calcul_score : int, token: str = Depends(oauth2_scheme)):
     
     """if credentials.credentials != token_VerifSolva:
         raise HTTPException(

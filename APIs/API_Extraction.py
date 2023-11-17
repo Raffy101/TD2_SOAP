@@ -35,10 +35,10 @@ token_Extraction = "AHshhxhczcrfkrvfkfnvrepdazdede"
 
 @router.post("/creationDonneeClients")
 @app.post('/creationDonneeClients')
-async def CreationDonneeClients(demande_client : str, current_user: Annotated[User, Depends(get_current_user)]):
+async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth2_scheme)):
     
-    print("current_user=", current_user)
-    if not current_user :
+    print("current_user=", token)
+    if not token :
         print("INVALID TOKEN !")
         return
 
