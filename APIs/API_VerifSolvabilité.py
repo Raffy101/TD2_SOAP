@@ -1,8 +1,8 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, APIRouter
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import uvicorn
-
 import re
+from utils import *
 
 '''
 ###########################################################################
@@ -22,15 +22,18 @@ securite = HTTPBearer()
 token_VerifSolva = "AHqsddazcvfervbrXZ3repdazdede"
 
 # Endpoint pour votre API
+router = APIRouter()
+
+@router.post("/verification_solvabilite")
 @app.post('/verification_solvabilite')
-def verification_solvabilite(salaireMensuel : str, depenseMensuel : str, calcul_score : int, credentials: HTTPAuthorizationCredentials = Depends(securite)):
+def verification_solvabilite(salaireMensuel : str, depenseMensuel : str, calcul_score : int, current_user: Annotated[User, Depends(get_current_user)]):
     
-    if credentials.credentials != token_VerifSolva:
+    """if credentials.credentials != token_VerifSolva:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
         )
     else :
-        print("Success authentication token")
+        print("Success authentication token")"""
 
     # Dans le cas où Salaire et Dépense mensuel contiendrait dans la chaîne de caractère une devise monaitaire ! 
     list_mots1 = re.findall(r'\w+', salaireMensuel)

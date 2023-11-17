@@ -203,6 +203,10 @@
   text-transform: none;
   text-decoration: none;
 }
+.login-form {
+  display: none;
+}
+
 @media(max-width: 767px) {
   .page {
     padding-top: var(--dl-space-space-halfunit);

@@ -36,32 +36,65 @@
     
   </head>
   <body>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
     <div>
-      <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet" />
+      <link href="{{ url_for('static', path='index.css') }}" rel="stylesheet" />
 
       <div class="home-container">
         <section class="home-hero">
           <div class="home-main">
             <div class="home-video">
-              <video src="" poster="{{ url_for('static', filename='public/Videos/back3.jpg') }}" class="home-video1"></video>
+              <video src="" poster="{{ url_for('static', path='public/Videos/back3.jpg') }}" class="home-video1"></video>
               <div class="home-tint"></div>
             </div>
             <div class="home-content">
 
               <header data-thq="thq-navbar" class="home-navbar">
-                <img alt="logo" src="{{ url_for('static', filename='public/logo.svg') }}" class="home-logo" />
+                <img alt="logo" src="{{ url_for('static', path='public/logo.svg') }}" class="home-logo" />
                 <div data-thq="thq-burger-menu" class="home-menu">
                   <div class="home-links">
                     <a href="{{ url_for('decision') }}" class="home-text link">Page de Decision</a>
                     <a href="" class="link">Clients</a>
                     <a href="" class="home-text2 link">Contact</a>
+                      <button onclick="toggleLoginForm()">Connexion</button>
+
+                        <div id="loginForm" class="login-form">
+                            <form method="POST" action="/token">
+                                <label for="username">Nom d'utilisateur:</label>
+                                <input type="text" id="username" name="username" required>
+                                <br>
+                                <label for="password">Mot de passe:</label>
+                                <input type="password" id="password" name="password" required>
+                                <br>
+                                <input type="submit" value="Login" class="input" style="margin-left: 35%;">
+                            </form>
+                        </div>
+                        <script>
+                          function toggleLoginForm() {
+                              var loginForm = document.getElementById("loginForm");
+                              if (loginForm.style.display === "none") {
+                                  loginForm.style.display = "block";
+                              } else {
+                                  loginForm.style.display = "none";
+                              }
+                          }
+                  
+                          function submitLoginForm() {
+                              // Ajoutez ici la logique pour traiter le formulaire de connexion
+                              var username = document.getElementById("username").value;
+                              var password = document.getElementById("password").value;
+                  
+                              // Vous pouvez envoyer ces valeurs à votre backend pour l'authentification
+                              console.log("Username:", username);
+                              console.log("Password:", password);
+                          }
+                      </script>
                   </div>
                 </div>
                 <div data-thq="thq-mobile-menu" class="home-mobile-menu">
                   <div data-thq="thq-mobile-menu-nav" data-role="Nav" class="home-nav">
                     <div class="home-container1">
-                      <img alt="logo" src="{{ url_for('static', filename='public/logo.svg') }}" class="home-logo1" />
+                      <img alt="logo" src="{{ url_for('static', path='public/logo.svg') }}" class="home-logo1" />
                     </div>
                   </div>
                 </div>
@@ -75,7 +108,7 @@
                 </div>
                 
                 <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file') }}">
-                  <input type="file" name="fichier" class="input"><br>
+                  <input type="file" name="file" class="input"><br>
                   <input type="submit" value="Envoyer" class="input" style="margin-left: 35%;">
                 </form>
 
@@ -92,7 +125,7 @@
                     <textarea name="texte" rows="10" cols="75" placeholder="Saisissez votre texte ici" required></textarea>
                   </div>
                   <div class="home-search">
-                    <button><img alt="image" src="{{ url_for('static', filename='public/Icons/search.svg') }}" type="submit" value="Envoyer la demande"/></button>
+                    <button><img alt="image" src="{{ url_for('static', path='public/Icons/search.svg') }}" type="submit" value="Envoyer la demande"/></button>
                   </div>
                 </form>
 
@@ -105,7 +138,7 @@
             <div class="home-main1">
               <div class="home-branding">
                 <div class="home-heading1">
-                  <img alt="image" src="{{ url_for('static', filename='public/logo.svg') }}" class="home-image" />
+                  <img alt="image" src="{{ url_for('static', path='public/logo.svg') }}" class="home-image" />
                   <p class="home-caption1">
                     Lorsqu'il s'agit d'acheter la maison de vos rêves ou d'investir dans un bien immobilier, le choix de la 
                     bonne banque pour obtenir un prêt immobilier est essentiel. L'ISTY est depuis longtemps reconnu comme 

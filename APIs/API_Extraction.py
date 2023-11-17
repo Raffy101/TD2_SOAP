@@ -1,12 +1,16 @@
 #pip install twisted
 #pip install spyne 
 
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, APIRouter
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import uvicorn
 import os
 import spacy
 import re
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from typing import Annotated
+from fastapi.security import OAuth2PasswordBearer
+from utils import *
 
 '''
 ###########################################################################
@@ -21,21 +25,29 @@ Description : L'API d'extraction d'information nous permet de pouvoir
 '''
 
 app = FastAPI()
-securite = HTTPBearer()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+router = APIRouter()
 
 idClient= 1
 
 token_Extraction = "AHshhxhczcrfkrvfkfnvrepdazdede"
 
+
+@router.post("/creationDonneeClients")
 @app.post('/creationDonneeClients')
-async def CreationDonneeClients(demande_client : str, credentials: HTTPAuthorizationCredentials = Depends(securite)):
+async def CreationDonneeClients(demande_client : str, current_user: Annotated[User, Depends(get_current_user)]):
     
-    if credentials.credentials != token_Extraction:
+    print("current_user=", current_user)
+    if not current_user :
+        print("INVALID TOKEN !")
+        return
+
+    """if credentials.credentials != token_Extraction:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
         )
     else :
-        print("Success authentication token")
+        print("Success authentication token")"""
     
 
     print(f"Requête reçue avec demande_client : {demande_client}")

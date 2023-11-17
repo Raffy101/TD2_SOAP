@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, APIRouter
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import uvicorn
+from utils import *
 
 '''
 ###########################################################################
@@ -19,16 +20,19 @@ securite = HTTPBearer()
 token_CalculScore = "AHshhxhwxsaSA23Evrfrve"
 
 # Endpoint pour votre API
+router = APIRouter()
+
+@router.post("/calcul_score")
 @app.post('/calcul_score')
-async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankRuptcy: int, credentials: HTTPAuthorizationCredentials = Depends(securite)):
+async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankRuptcy: int, current_user: Annotated[User, Depends(get_current_user)]):
     
     # Sécurité : check du token
-    if credentials.credentials != token_CalculScore:
+    """if credentials.credentials != token_CalculScore:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
         )
     else :
-        print("Success authentication token")
+        print("Success authentication token")"""
     
     score = 0
 

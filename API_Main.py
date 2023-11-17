@@ -2,11 +2,12 @@
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
-import json
 import sqlite3
 
 import requests
-
+from fastapi import Depends
+from typing import Annotated
+from utils import *
 '''
 ###########################################################################
 
@@ -22,10 +23,10 @@ Description : Il  s'agit ici de notre programme Main qui nous sert à faire
 # Liste de URL des Différents API
 
 api_Extraction_url = "http://localhost:8000/creationDonneeClients"
-api_EvalPropriete_url = "http://localhost:8001/evaluation_propriete"
-api_CalculScore_url = "http://localhost:8002/calcul_score"
-api_VerifSolva_url = "http://localhost:8003/verification_solvabilite"
-api_DecisionApprob_url = "http://localhost:8004/decision_credit"
+api_EvalPropriete_url = "http://localhost:8000/evaluation_propriete"
+api_CalculScore_url = "http://localhost:8000/calcul_score"
+api_VerifSolva_url = "http://localhost:8000/verification_solvabilite"
+api_DecisionApprob_url = "http://localhost:8000/decision_credit"
 
 # Liste des différents tokens 
 
@@ -37,12 +38,12 @@ token_secret_DecisionApprob = "cqsdzdaSvrepdazdede"
 
 headers = {
     'Content-Type': 'application/json',
-    'Authorization': f"Bearer {token_secret_Extraction}"
 }
 
 class Handler(FileSystemEventHandler):
+    
     def on_modified(self, event):
-
+    
         # Créer une connexion à la base de données
         conn = sqlite3.connect('./DataBase/BaseDeDonneesClients.db')
         # Créer un curseur pour exécuter des requêtes
@@ -58,8 +59,8 @@ class Handler(FileSystemEventHandler):
         print(event.src_path)
 
         try:
-            headers['Authorization'] = f"Bearer {token_secret_Extraction}"
             donneeClient = requests.post(api_Extraction_url, params=data, headers=headers).json()
+            print("requete : ",donneeClient)
             #print(donneeClient["RevenuMensuel"])
 
             if (donneeClient["NomDuClient"] == "" or donneeClient["DescriptionPropriete"] == "" or donneeClient["RevenuMensuel"] == "" or donneeClient["DepensesMensuelles"] == "") :
@@ -67,7 +68,7 @@ class Handler(FileSystemEventHandler):
                 print("Veuillez vous assurer de renseigner dans la demande :\n NomduClient, la description de la propriété, les revenus Mensuels et les depenses mensuelles\n")
                 return
         except:
-            print("Erreur INVALIDE Token !")
+            print("Error INVALID Token Extraction !")
             return 
                 
         try:
@@ -99,7 +100,7 @@ class Handler(FileSystemEventHandler):
             # Phase d'initialisation
 
             # API de d'évaluation de la propriété
-            headers['Authorization'] = f"Bearer {token_secret_EvalProp}"
+            #headers['Authorization'] = f"Bearer {token_secret_EvalProp}"
             
             eval_propr = requests.post(api_EvalPropriete_url, params={'description' : str(donneeClient["DescriptionPropriete"])}, headers=headers).json()
             if type(eval_propr) != int : 
@@ -108,7 +109,7 @@ class Handler(FileSystemEventHandler):
             print(eval_propr)
 
             # API de calcul du score d'un client
-            headers['Authorization'] = f"Bearer {token_secret_CalculScore}"
+            #headers['Authorization'] = f"Bearer {token_secret_CalculScore}"
             score = requests.post(api_CalculScore_url, params={'totalCredit' : int(client_trouve[2]),'nbPayementRetard' : int(client_trouve[4]), 'nbBankRuptcy' : int(client_trouve[3])}, headers=headers).json()
             if type(score) != int : 
                 print("Erreur lors de la saisie du token pour l'API Score")
@@ -116,7 +117,7 @@ class Handler(FileSystemEventHandler):
             print(score)
 
             # API de vérification de la solvabilité du client
-            headers['Authorization'] = f"Bearer {token_secret_VerifSolva}"
+            #headers['Authorization'] = f"Bearer {token_secret_VerifSolva}"
             Solvabilite = requests.post(api_VerifSolva_url, params={'salaireMensuel' : str(donneeClient["RevenuMensuel"]) , 'depenseMensuel' : str(donneeClient["DepensesMensuelles"]) , 'calcul_score' : score }, headers=headers).json()
             if type(Solvabilite) != int : 
                 print("Erreur lors de la saisie du token pour l'API Solvabilité")
@@ -124,7 +125,7 @@ class Handler(FileSystemEventHandler):
             print("SOLVABILITE :"+str(Solvabilite))
 
             # API de décision d'approbation ou non d'un prêt pour le client
-            headers['Authorization'] = f"Bearer {token_secret_DecisionApprob}"
+            #headers['Authorization'] = f"Bearer {token_secret_DecisionApprob}"
             Decision =  requests.post(api_DecisionApprob_url, params={'solvabilite' : Solvabilite }, headers=headers).json()
             if Decision == "ACCEPTE" or Decision == "REFUS" : 
                 print(str(Decision))
@@ -162,7 +163,6 @@ if __name__ == '__main__':
 
     print(f"Surveillance du dossier : {chemin_dossier}")
     observer.start()
-
     try:
         while True:
             time.sleep(5)

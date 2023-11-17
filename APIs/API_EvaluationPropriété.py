@@ -1,8 +1,8 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, APIRouter
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import uvicorn
-
 import re
+from utils import *
 
 '''
 ###########################################################################
@@ -20,16 +20,18 @@ app = FastAPI()
 securite = HTTPBearer()
 
 token_EvalProp = "dfeferjclefekzffS22EDkfazc"
+router = APIRouter()
 
+@router.post("/evaluation_propriete")
 @app.post('/evaluation_propriete')
-async def evaluation_propriete(description : str , credentials: HTTPAuthorizationCredentials = Depends(securite)):
+async def evaluation_propriete(description : str, current_user: Annotated[User, Depends(get_current_user)]):
     
-    if credentials.credentials != token_EvalProp:
+    """if credentials.credentials != token_EvalProp:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
         )
     else :
-        print("Success authentication token")
+        print("Success authentication token")"""
 
     #print(description)
     valeur = 0

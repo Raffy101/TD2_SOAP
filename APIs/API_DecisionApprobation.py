@@ -1,7 +1,8 @@
 # Transformation en API
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, APIRouter
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import uvicorn
+from utils import *
 
 '''
 ###########################################################################
@@ -21,15 +22,18 @@ securite = HTTPBearer()
 token_DecisionApprob = "cqsdzdaSvrepdazdede"
 
 # Endpoint pour votre API
-@app.post('/decision_credit')
-async def decision_credit_endpoint(solvabilite : int , credentials: HTTPAuthorizationCredentials = Depends(securite)):
+router = APIRouter()
 
-    if credentials.credentials != token_DecisionApprob:
+@router.post("/decision_credit")
+@app.post('/decision_credit')
+async def decision_credit_endpoint(solvabilite : int, current_user: Annotated[User, Depends(get_current_user)]):
+
+    """if credentials.credentials != token_DecisionApprob:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
         )
     else :
-        print("Success authentication token")
+        print("Success authentication token")"""
 
     if int(solvabilite) == 1 :
         resultat = "ACCEPTE"
