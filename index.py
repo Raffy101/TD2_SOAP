@@ -7,7 +7,7 @@ from APIs.API_EvaluationPropriete import router as routerEvaluationPropriete
 from APIs.API_CalculScore import router as routerCalculScore
 from APIs.API_DecisionApprobation import router as routerDecisionApprobation
 from utils import router as routerGetCurrentUserActive
-from fastapi import Depends,FastAPI, APIRouter, HTTPException, status
+from fastapi import Request, Depends,FastAPI, APIRouter, HTTPException, status, Response
 import uvicorn
 from API_Main import Handler
 import time
@@ -90,10 +90,11 @@ async def login(request: Request,form_data: Annotated[OAuth2PasswordRequestForm,
     global current_user
     current_user = access_token
     print("Connected ! voici ton token =", current_user)
-    """response = RedirectResponse("/mainAPI")
+    response = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(key="access_token", value=current_user, httponly=True)
-    return response"""
-    return templates.TemplateResponse("index.html", {"request": request,"access_token": access_token , "token_type": "bearer"})
+    response.set_cookie(key="name", value=user.name, httponly=True)
+    return response
+    #return templates.TemplateResponse("index.html", {"request": request,"access_token": access_token , "name" : user.name, "token_type": "bearer"})
 
 
 @router.get("/decision")
@@ -111,11 +112,22 @@ def decision(request: Request, nom: str = None):
 
 @router.get("/")
 @app.get('/', response_class=HTMLResponse)
-def accueil(request: Request, message: str = None):
+def accueil(request: Request, message: str = None, name: str = None):
     if message == None: message = ""
-    return templates.TemplateResponse("index.html" ,{"request": request, "message" : message})
+    cookie = request.cookies
+    if name in cookie:
+        name = cookie["name"]
+    return templates.TemplateResponse("index.html" ,{"request": request, "message" : message, "name" : name})
 
-  
+@router.get("/logout")
+@app.get('/logout', response_class=HTMLResponse)
+def deconnexion(request: Request, response: Response):
+    global current_user
+    current_user = None
+    response = RedirectResponse(url="/")
+    response.delete_cookie("access_token")
+    response.delete_cookie("name")
+    return response
     
 @router.post("/cree_fichier")
 @app.post('/cree_fichier')

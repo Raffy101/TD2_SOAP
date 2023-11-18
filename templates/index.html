@@ -56,17 +56,28 @@
                     <a href="{{ url_for('decision') }}" class="home-text link">Page de Decision</a>
                     <a href="" class="link">Clients</a>
                     <a href="" class="home-text2 link">Contact</a>
-                      <button onclick="toggleLoginForm()">Connexion</button>
-
+                      {% if name is none %}
+                      <button onclick="toggleLoginForm()" class="home-text link">Connexion</button>
+                      {% endif %}
+                      {% if name is not none %}
+                      <button onclick="deconnexion()" class="home-text link">Déconnexion</button>
+                        <p id="nameConnexion" class="home-text link">Bonjour {{ name }}</p>
+                      {% endif %}
                         <div id="loginForm" class="login-form">
                             <form method="POST" action="/token">
-                                <label for="username">Nom d'utilisateur:</label>
-                                <input type="text" id="username" name="username" required>
-                                <br>
-                                <label for="password">Mot de passe:</label>
-                                <input type="password" id="password" name="password" required>
-                                <br>
-                                <input type="submit" value="Login" class="input" style="margin-left: 35%;">
+                                <table>
+                                  <tr>
+                                    <td><label for="username" class="home-text link" >Nom d'utilisateur:</label></td>
+                                    <td><input type="text" id="username" name="username" required></td>
+                                  </tr>
+                                  <tr>
+                                    <td><label for="password"class="home-text link" >Mot de passe:</label></td>
+                                    <td><input type="password" id="password" name="password" required></td>
+                                  </tr>
+                                  <tr>
+                                    <td><input type="submit" value="Login" class="input" style="margin-left: 35%;"></td>
+                                  </tr> 
+                                </table>
                             </form>
                         </div>
                         <script>
@@ -78,15 +89,9 @@
                                   loginForm.style.display = "none";
                               }
                           }
-                  
-                          function submitLoginForm() {
-                              // Ajoutez ici la logique pour traiter le formulaire de connexion
-                              var username = document.getElementById("username").value;
-                              var password = document.getElementById("password").value;
-                  
-                              // Vous pouvez envoyer ces valeurs à votre backend pour l'authentification
-                              console.log("Username:", username);
-                              console.log("Password:", password);
+
+                          function deconnexion() {
+                            window.location.href = "/logout";
                           }
                       </script>
                   </div>
