@@ -60,6 +60,7 @@ async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth
         donneesClient["DescriptionPropriete"] = "" 
         donneesClient["RevenuMensuel"] = "" 
         donneesClient["DepensesMensuelles"] = ""
+        donneesClient["DureeDuPret"] = ""
 
         nlp = spacy.load("fr_core_news_sm")
 

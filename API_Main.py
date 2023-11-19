@@ -155,7 +155,7 @@ class Handler(FileSystemEventHandler):
             # API de vérification de la solvabilité du client
             #headers['Authorization'] = f"Bearer {token_secret_VerifSolva}"
             try:
-                Solvabilite = requests.post(api_VerifSolva_url, params={'salaireMensuel' : str(donneeClient["RevenuMensuel"]) , 'depenseMensuel' : str(donneeClient["DepensesMensuelles"]) , 'calcul_score' : score }, headers=headers).json()
+                Solvabilite = requests.post(api_VerifSolva_url, params={'salaireMensuel' : str(donneeClient["RevenuMensuel"]) , 'depenseMensuel' : str(donneeClient["DepensesMensuelles"]), 'dureeDuPret' : str(donneeClient["DureeDuPret"]) , 'calcul_score' : score }, headers=headers).json()
             except:
                 print("Erreur lors de la saisie du token pour l'API Solvabilité")
                 return
