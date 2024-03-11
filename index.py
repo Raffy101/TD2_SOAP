@@ -70,7 +70,7 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
 
 @router.post("/token")
 @app.post("/token")
-async def login(request: Request,form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     # Interroger la base de données
     print("form_data.username=", form_data.username)
     print("form_data.password=", form_data.password)
@@ -101,13 +101,18 @@ async def login(request: Request,form_data: Annotated[OAuth2PasswordRequestForm,
 @app.get('/decision')
 def decision(request: Request, nom: str = None):
     directory_results="./Resultats/"
-    fichier_resultat = os.path.join(directory_results+nom+".txt")
-    if os.path.exists(fichier_resultat):
-        with open(directory_results+ nom+".txt", 'r') as fichier:
-            contenu = fichier.read()
-        return templates.TemplateResponse("decisionPage.html", {"request": request,"nom": nom, "message": contenu})
+    
+    if nom :
+        fichier_resultat = os.path.join(directory_results+nom+".txt")
+        if os.path.exists(fichier_resultat):
+            with open(directory_results+ nom+".txt", 'r') as fichier:
+                contenu = fichier.read()
+            return templates.TemplateResponse("decision.html", {"request": request,"nom": nom, "message": contenu})
+        else:
+            return templates.TemplateResponse("decision.html", {"request": request, "message": "Aucun fichier trouvé."})
     else:
-        return templates.TemplateResponse("decisionPage.html", {"request": request,"nom": nom, "message": "Aucun fichier trouvé."})
+        return templates.TemplateResponse("decision.html", {"request": request})
+    
 
 
 @router.get("/")
@@ -135,7 +140,7 @@ def accueil(request: Request, message: str = None, name: str = None):
 
 @router.get("/logout")
 @app.get('/logout', response_class=HTMLResponse)
-def deconnexion(request: Request, response: Response):
+def deconnexion(response: Response):
     global current_user
     current_user = None
     response = RedirectResponse(url="/")
@@ -145,7 +150,7 @@ def deconnexion(request: Request, response: Response):
     
 @router.post("/cree_fichier")
 @app.post('/cree_fichier')
-def creer_fichier(request: Request, texte: str = None):
+def creer_fichier(texte: str = None):
     #message = request.args.get('La demande a été envoyé avec succès.', None)# post
     
     if texte:
