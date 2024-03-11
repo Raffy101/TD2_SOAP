@@ -56,12 +56,12 @@
                     <a href="{{ url_for('decision') }}" class="home-text link">Page de Decision</a>
                     <a href="" class="link">Clients</a>
                     <a href="" class="home-text2 link">Contact</a>
-                      {% if name is none %}
-                      <button onclick="toggleLoginForm()" class="home-text link">Connexion</button>
-                      {% endif %}
-                      {% if name is not none %}
-                      <button onclick="deconnexion()" class="home-text link">Déconnexion</button>
+                      {% if name %}
+                        <button onclick="deconnexion()" class="home-text link">Déconnexion</button>
                         <p id="nameConnexion" class="home-text link">Bonjour {{ name }}</p>
+                      
+                      {% else %}
+                        <button onclick="toggleLoginForm()" class="home-text link">Connexion</button>
                       {% endif %}
                         <div id="loginForm" class="login-form">
                             <form method="POST" action="/token">

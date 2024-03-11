@@ -114,10 +114,24 @@ def decision(request: Request, nom: str = None):
 @app.get('/', response_class=HTMLResponse)
 def accueil(request: Request, message: str = None, name: str = None):
     if message == None: message = ""
+    if name == None: name = ""
     cookie = request.cookies
-    if name in cookie:
+    if "name" in cookie :
         name = cookie["name"]
+        print("aaaaaaaaaaaaaaaaaaaa", name)
     return templates.TemplateResponse("index.html" ,{"request": request, "message" : message, "name" : name})
+
+@router.post("/")
+@app.post('/', response_class=HTMLResponse)
+def accueil(request: Request, message: str = None, name: str = None):
+    if message == None: message = ""
+    if name == None: name = ""
+    cookie = request.cookies
+    if "name" in cookie:
+        name = cookie["name"]
+        print("bbbbbbbbbbbbbbbbbbbb", name)
+    return templates.TemplateResponse("index.html" ,{"request": request, "message" : message, "name" : name})
+
 
 @router.get("/logout")
 @app.get('/logout', response_class=HTMLResponse)

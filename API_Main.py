@@ -3,7 +3,8 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
 import requests
-from fastapi import Request, File, UploadFile
+from fastapi import Request, File, UploadFile, Response
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from utils import *
 from fastapi.staticfiles import StaticFiles
@@ -39,16 +40,22 @@ token= None
 
 @router.post("/upload_file")
 @app.post('/upload_file')
-def upload_file(request: Request, message : str = None, file: UploadFile = File(...)):
+def upload_file(response: Response, request: Request, message : str = None, file: UploadFile = File(...)):
     if message is not None:
-        return templates.TemplateResponse("index.html", {"request": request,"message": message})
+        response = RedirectResponse(url="/")
+        response.headers["Location"] = "/?message="+message
+        return response
         
     if file is None:
-        return templates.TemplateResponse("index.html", {"request": request,"message": "Aucun fichier sélectionné."})
+        response = RedirectResponse(url="/")
+        response.headers["Location"] = "/?message=Aucun fichier sélectionné."
+        return response
     
     # Vérifie si le nom du fichier est vide
     if file.filename == '':
-        return templates.TemplateResponse("index.html", {"request": request,"message": "Nom de fichier vide."})
+        response = RedirectResponse(url="/")
+        response.headers["Location"] = "/?message=Nom de fichier vide."
+        return response
 
     if file and is_allowed_file(file.filename):
         cookie = request.cookies
@@ -66,10 +73,14 @@ def upload_file(request: Request, message : str = None, file: UploadFile = File(
         #response.set_cookie(key="file", value=file.file.read(), httponly=True)
         #return response
         
+    
         return templates.TemplateResponse("index.html", {"request": request,"access_token": token ,"message":"File Uploaded !", "token_type": "bearer"})
 
     else:
-        return templates.TemplateResponse("index.html", {"request": request,"message": "Extension de fichier non autorisée. Les fichiers .txt sont autorisés."})
+        response = RedirectResponse(url="/")
+        response.headers["Location"] = "/?message=Extension de fichier non autorisée. Les fichiers .txt sont autorisés."
+        return response
+        #return templates.TemplateResponse("index.html", {"request": request,"message": "Extension de fichier non autorisée. Les fichiers .txt sont autorisés."})
   
 
 
@@ -183,11 +194,11 @@ class Handler(FileSystemEventHandler):
             with open(nom_fichier, 'w') as fichiers :
             
                 if str(Decision) == "ACCEPTE" :
-                    msg = "La demande de prêt est acceptee !! Félicitation"
+                    msg = "La demande de pret est acceptee !! Felicitation"
                 elif str(Decision) == "REFUS" :
-                    msg = "Nous sommes dans le regrêt de vous informer que votre demande est rejetee !"
+                    msg = "Nous sommes dans le regret de vous informer que votre demande est rejetee !"
                 else:
-                    msg = "Erreur au cours de l'execution de la demande de crédit !"
+                    msg = "Erreur au cours de l'execution de la demande de credit !"
                 fichiers.write(msg)
         
         else:
