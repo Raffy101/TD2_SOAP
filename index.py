@@ -7,7 +7,7 @@ from APIs.API_EvaluationPropriete import router as routerEvaluationPropriete
 from APIs.API_CalculScore import router as routerCalculScore
 from APIs.API_DecisionApprobation import router as routerDecisionApprobation
 from utils import router as routerGetCurrentUserActive
-from fastapi import Request, Depends,FastAPI, APIRouter, HTTPException, status, Response
+from fastapi import Request, Depends,FastAPI, APIRouter, HTTPException, status, Response, Form
 import uvicorn
 from API_Main import Handler
 import time
@@ -20,7 +20,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-
+import requests
 '''
 ###########################################################################
 
@@ -150,7 +150,7 @@ def deconnexion(response: Response):
     
 @router.post("/cree_fichier")
 @app.post('/cree_fichier')
-def creer_fichier(texte: str = None):
+def creer_fichier(request: Request, texte: str = Form(...)):
     #message = request.args.get('La demande a été envoyé avec succès.', None)# post
     
     if texte:
@@ -167,9 +167,24 @@ def creer_fichier(texte: str = None):
             message="Erreur durant l'exécution de la procédure, des informations sont manquantes ! \n Veuillez vous assurer de renseigner dans la demande : \n NomduClient, la description de la propriété, les revenus Mensuels et les depenses mensuelles"
             return RedirectResponse(url=f"/?message={message}")
 
-        with open(nomFichier, 'w') as fichier:
+        with open(nomFichier, 'w', encoding="utf-8") as fichier:
             fichier.write(texte)
-        message="La demande a été envoyé avec succès."    
+       
+
+        cookie = request.cookies
+        token = cookie["access_token"]
+        print("creefichieeeeeeer=",token)
+        url = "http://localhost:8000/upload_file"
+        files = {"file": open(nomFichier, "rb")}  # Replace "example.txt" with the path to your file
+        cookies = {"access_token": token, "name": cookie["name"]}
+        response = requests.post(url, files=files, cookies=cookies)    
+        print(response)
+        if response.status_code == 200:
+            message="La demande a été envoyé avec succès."
+        else:
+            message="Erreur durant l'execution de la procedure des informations sont manquantes !\n Veuillez vous assurer de renseigner dans la demande : NomduClient, la description de la propriete, les revenus Mensuels et les depenses mensuelles"
+            import urllib.parse
+            message= urllib.parse.quote_plus(message)
         return RedirectResponse(url=f"/?message={message}")
     
     message="Aucun client trouvé avec ce nom."
@@ -180,19 +195,19 @@ app.include_router(router)
 if __name__ == '__main__':
     chemin_dossier = ".\DemandesClients"
 
-    event_handler = Handler()
+    """event_handler = Handler()
     observer = Observer()
     observer.schedule(event_handler, path=chemin_dossier, recursive=False)
 
     print(f"Surveillance du dossier : {chemin_dossier}")
-    observer.start()
+    observer.start()"""
     uvicorn.run(app, host="localhost", port=8000)
-    try:
+    """try:
         while True:
             time.sleep(5)
     except KeyboardInterrupt:
         observer.stop()
-    observer.join()
+    observer.join()"""
     #uvicorn.run(appAPI, host="localhost", port=8000)
     #app.run(debug=True)
     

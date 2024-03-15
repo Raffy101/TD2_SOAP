@@ -36,6 +36,7 @@
     
   </head>
   <body>
+    
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
     <div>
       <link href="{{ url_for('static', path='index.css') }}" rel="stylesheet" />
@@ -45,6 +46,17 @@
           <div class="home-main">
             <div class="home-video">
               <video src="" poster="{{ url_for('static', path='public/Videos/back3.jpg') }}" class="home-video1"></video>
+              <img src="static/public/Icons/loading.gif" id="loading-overlay" alt="Image" 
+              style="
+              display: none;
+              width: 100%; 
+              opacity: 0.5;
+              z-index: 999;
+              position: absolute;
+              top: 0;
+              left: 0;
+              ">
+              
               <div class="home-tint"></div>
             </div>
             <div class="home-content">
@@ -114,9 +126,18 @@
                 
                 <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file') }}">
                   <input type="file" name="file" class="input"><br>
-                  <input type="submit" value="Envoyer" class="input" style="margin-left: 35%;">
+                  <input type="submit" value="Envoyer" class="input" id="submitting" style="margin-left: 35%;">
                 </form>
-
+                  
+                <script>
+                  var submit = document.getElementById('submitting');
+                  submit.onclick = function() {
+                    document.getElementById("loading-overlay").style.display = "block";
+                  }
+                  document.addEventListener("load", function() {
+                        document.getElementById("loading-overlay").style.display = "none";
+                  });
+                </script>
                 <div>
                   <p style="color: blanchedalmond;"><b>{{ message }}</b></p>
                 </div>
@@ -128,10 +149,19 @@
                     <textarea name="texte" rows="10" cols="75" placeholder="Saisissez votre texte ici" required></textarea>
                   </div>
                   <div class="home-search">
-                    <button><img alt="image" src="{{ url_for('static', path='public/Icons/search.svg') }}" type="submit" value="Envoyer la demande"/></button>
+                    <button><img alt="image" id="submitting2" src="{{ url_for('static', path='public/Icons/search.svg') }}" type="submit" value="Envoyer la demande"/></button>
                   </div>
                 </form>
-
+                <script>
+                  var submit = document.getElementById('submitting2');
+                  submit.onclick = function() {
+                    document.getElementById("loading-overlay").style.display = "block";
+                    window.scrollTo(0, 0);
+                  }
+                  document.addEventListener("load", function() {
+                        document.getElementById("loading-overlay").style.display = "none";
+                  });
+                </script>
               </div>
             </div>
           </div>
