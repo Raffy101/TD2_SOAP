@@ -10,7 +10,6 @@ from utils import router as routerGetCurrentUserActive
 from fastapi import Request, Depends,FastAPI, APIRouter, HTTPException, status, Response, Form
 import uvicorn
 from API_Main import Handler
-import time
 from watchdog.observers import Observer
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
@@ -21,6 +20,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import requests
+
 '''
 ###########################################################################
 
@@ -29,14 +29,13 @@ Creator : Othmane ABDIMI & Raffaele GIANNICO
 Description : Notre Fonction Index nous sert à pouvoir réaliser notre
     demande de prêt via une interface Web.
 
+    En lançant ce prgramme, tout le processus ce met en place.
+
+    Il suffit de ce lancer : http://localhost:8000 dans votre navigateur
+    pour pouvoir accéder à la page de demande en ligne.
+
 ###########################################################################
 '''
-"""class User(BaseModel):
-    name : str
-    username: str
-    password : str
-    email: str 
-    disabled: bool | None = None"""
 
 #codage=utf-8
 app = FastAPI()
@@ -56,22 +55,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 current_user = None
 
-
-"""@router.get("/items")
-@app.get("/items")
-async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
-    return {"token": token}
-
-@router.get("/users/me")
-@app.get("/users/me")
-async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
-    return current_user
-"""
-
 @router.post("/token")
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    # Interroger la base de données
+    
+    # Interrogation de la base de données
     print("form_data.username=", form_data.username)
     print("form_data.password=", form_data.password)
     user = authenticate_user(form_data.username, form_data.password)
@@ -94,7 +82,6 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     response.set_cookie(key="access_token", value=current_user, httponly=True)
     response.set_cookie(key="name", value=user.name, httponly=True)
     return response
-    #return templates.TemplateResponse("index.html", {"request": request,"access_token": access_token , "name" : user.name, "token_type": "bearer"})
 
 
 @router.get("/decision")
@@ -118,22 +105,28 @@ def decision(request: Request, nom: str = None):
 @router.get("/")
 @app.get('/', response_class=HTMLResponse)
 def accueil(request: Request, message: str = None, name: str = None):
+    
     if message == None: message = ""
     if name == None: name = ""
     cookie = request.cookies
+    
     if "name" in cookie :
         name = cookie["name"]
+        # Debug
         print("aaaaaaaaaaaaaaaaaaaa", name)
     return templates.TemplateResponse("index.html" ,{"request": request, "message" : message, "name" : name})
 
 @router.post("/")
 @app.post('/', response_class=HTMLResponse)
 def accueil(request: Request, message: str = None, name: str = None):
+    
     if message == None: message = ""
     if name == None: name = ""
     cookie = request.cookies
+    
     if "name" in cookie:
         name = cookie["name"]
+        # Debug
         print("bbbbbbbbbbbbbbbbbbbb", name)
     return templates.TemplateResponse("index.html" ,{"request": request, "message" : message, "name" : name})
 
@@ -141,6 +134,7 @@ def accueil(request: Request, message: str = None, name: str = None):
 @router.get("/logout")
 @app.get('/logout', response_class=HTMLResponse)
 def deconnexion(response: Response):
+    
     global current_user
     current_user = None
     response = RedirectResponse(url="/")
@@ -193,21 +187,5 @@ def creer_fichier(request: Request, texte: str = Form(...)):
 app.include_router(router)
 
 if __name__ == '__main__':
-    chemin_dossier = ".\DemandesClients"
-
-    """event_handler = Handler()
-    observer = Observer()
-    observer.schedule(event_handler, path=chemin_dossier, recursive=False)
-
-    print(f"Surveillance du dossier : {chemin_dossier}")
-    observer.start()"""
     uvicorn.run(app, host="localhost", port=8000)
-    """try:
-        while True:
-            time.sleep(5)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()"""
-    #uvicorn.run(appAPI, host="localhost", port=8000)
-    #app.run(debug=True)
     

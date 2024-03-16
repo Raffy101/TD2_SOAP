@@ -2,8 +2,6 @@
 #pip install spyne 
 
 from fastapi import FastAPI, Depends, status, APIRouter
-import uvicorn
-import os
 import spacy
 import re
 from fastapi.security import OAuth2PasswordBearer
@@ -29,9 +27,6 @@ router = APIRouter()
 
 idClient= 1
 
-token_Extraction = "AHshhxhczcrfkrvfkfnvrepdazdede"
-
-
 @router.post("/creationDonneeClients")
 @app.post('/creationDonneeClients')
 async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth2_scheme)):
@@ -40,14 +35,6 @@ async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth
     if token == 'None' or token == None:
         message = "Authorization Needed !"
         return RedirectResponse(url=f"http://localhost:8000/?message={message}", status_code=status.HTTP_303_SEE_OTHER)
-
-    """if credentials.credentials != token_Extraction:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
-        )
-    else :
-        print("Success authentication token")"""
-    
 
     print(f"Requête reçue avec demande_client : {demande_client}")
     #if os.path.isfile(demande_client) and demande_client.endswith('.txt'):
@@ -64,9 +51,6 @@ async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth
 
     nlp = spacy.load("fr_core_news_sm")
 
-    """with open(demande_client, "r") as file:
-        file_content = file.read()
-        print(f"File Content:\n{file_content}")"""
     file_content=demande_client
     doc = nlp(file_content)
     #print(doc)
@@ -152,16 +136,3 @@ async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth
     #print("Dictionnaire :",donneesClient)
 
     return donneesClient
-    """else :
-        print("Fichier client non trouvé !")"""
-
-# Autre méthode / On peut remplir via Post la var Global et ensuite la retourner via get
-'''
-@app.get('/creationDonneeClients')
-async def ReponseCreationDonneeClients():
-    global donneesClient
-    return donneesClient
-'''
-
-if __name__ == '__main__':
-    uvicorn.run(app, host="localhost", port=8000)

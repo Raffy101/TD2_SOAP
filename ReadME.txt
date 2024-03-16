@@ -3,6 +3,19 @@ Promotion : IATIC-5
 TD2
 ------------------------------------------------------------------
 
+Attention il est possible qui soit nécessaire d'installer des
+package supplémentaire pour pouvoir lancer l'application
+
+--> pip install sqlalchemy
+
+--> pip install uvicorn
+
+--> pip install spacy
+
+--> pip install python-multipart
+
+-------------------------------------------------------------------
+
 Procédure de lancement du projet.
 
 Maintenant que tous les services sont en marche ! Il nous faut maintenant démarrer l'interface Web nous permettant

@@ -17,22 +17,12 @@ Description : L'API de Calcul score est une API qui nous permet de retourner
 app = FastAPI()
 securite = HTTPBearer()
 
-token_CalculScore = "AHshhxhwxsaSA23Evrfrve"
-
 # Endpoint pour votre API
 router = APIRouter()
 
 @router.post("/calcul_score")
 @app.post('/calcul_score')
-async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankRuptcy: int, token: str = Depends(oauth2_scheme)):
-    
-    # Sécurité : check du token
-    """if credentials.credentials != token_CalculScore:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
-        )
-    else :
-        print("Success authentication token")"""
+async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankRuptcy: int):
     
     score = 0
 
@@ -47,6 +37,3 @@ async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankR
     score += nbBankRuptcy * poids_nb_bankruptcy
 
     return score
-
-if __name__ == '__main__':
-    uvicorn.run(app, host="localhost", port=8002)

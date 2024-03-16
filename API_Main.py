@@ -1,14 +1,13 @@
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import time
 import requests
 from fastapi import Request, File, UploadFile, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from utils import *
 from fastapi.staticfiles import StaticFiles
-import sys
+
 '''
 ###########################################################################
 
@@ -21,8 +20,7 @@ Description : Il  s'agit ici de notre programme Main qui nous sert à faire
 ###########################################################################
 '''
 
-# Liste de URL des Différents API
-
+# Liste des URL des Différents API
 api_Extraction_url = "http://localhost:8000/creationDonneeClients"
 api_EvalPropriete_url = "http://localhost:8000/evaluation_propriete"
 api_CalculScore_url = "http://localhost:8000/calcul_score"
@@ -32,6 +30,7 @@ api_DecisionApprob_url = "http://localhost:8000/decision_credit"
 headers = {
     'Content-Type': 'application/json',
 }
+
 app = FastAPI()
 router = APIRouter()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -42,6 +41,7 @@ token= None
 @router.post("/upload_file")
 @app.post('/upload_file')
 def upload_file(response: Response, request: Request, message : str = '', file: UploadFile = File(...)):
+    
     if message != '':
         response = RedirectResponse(url="/")
         response.headers["Location"] = "/?message="+message
@@ -80,7 +80,6 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
                 headers['Authorization'] = f"Bearer {token}"
                 donneeClient = requests.post(api_Extraction_url, params=data, headers=headers).json()
                 print("requete : ",donneeClient)
-                #print(donneeClient["RevenuMensuel"])
                 
                 if (donneeClient["NomDuClient"] == "" or donneeClient["DescriptionPropriete"] == "" or donneeClient["RevenuMensuel"] == "" or donneeClient["DepensesMensuelles"] == "") :
                     print("Erreur durant l'execution de la procedure des informations sont manquantes !")
@@ -107,7 +106,6 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
                 return response 
             
             client_trouve = session.query(User).filter(User.name == recherche_client_db).first()
-
             all_clients = session.query(User).all()
 
             # Vérifier si des clients existent dans la base de données
@@ -121,15 +119,12 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
 
             print(client_trouve)
             if client_trouve:
-
                 print(f"Client trouvé (Voici les Infos Associés): ID : {client_trouve.id}, Nom : {client_trouve.name}, username : {client_trouve.username} ,email : {client_trouve.email}, password : {client_trouve.password}")
+                
                 # Phase d'initialisation
-
-                # API de d'évaluation de la propriété
-                #headers['Authorization'] = f"Bearer {token_secret_EvalProp}"
-
                 stat_client = session.query(StatistiquesClient).filter(StatistiquesClient.id_Client == client_trouve.id).first()
 
+                 # API évaluation de la propriété
                 if stat_client is None:
                     print("Erreur aucune données statistiques sur le client trouvé")
                     return 
@@ -142,7 +137,6 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
                 print(eval_propr)
 
                 # API de calcul du score d'un client
-                #headers['Authorization'] = f"Bearer {token_secret_CalculScore}"
                 try:
                     score = requests.post(api_CalculScore_url, params={'totalCredit' : stat_client.total_credit,'nbPayementRetard' : stat_client.nb_retards, 'nbBankRuptcy' : stat_client.nb_faillites}, headers=headers).json()
                 except: 
@@ -151,7 +145,6 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
                 print(score)
 
                 # API de vérification de la solvabilité du client
-                #headers['Authorization'] = f"Bearer {token_secret_VerifSolva}"
                 try:
                     Solvabilite = requests.post(api_VerifSolva_url, params={'salaireMensuel' : str(donneeClient["RevenuMensuel"]) , 'depenseMensuel' : str(donneeClient["DepensesMensuelles"]), 'dureeDuPret' : str(donneeClient["DureeDuPret"]) , 'calcul_score' : score }, headers=headers).json()
                 except:
@@ -160,13 +153,13 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
                 print("SOLVABILITE :"+str(Solvabilite))
 
                 # API de décision d'approbation ou non d'un prêt pour le client
-                #headers['Authorization'] = f"Bearer {token_secret_DecisionApprob}"
                 try:
                     Decision =  requests.post(api_DecisionApprob_url, params={'solvabilite' : Solvabilite }, headers=headers).json()
                 except:
                     print("Erreur lors de la saisie du token pour l'API Decision")
                     return
                 
+                # Print du résutat
                 if Decision == "ACCEPTE" or Decision == "REFUS" : 
                     print(str(Decision))
                 else :
@@ -191,38 +184,18 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
             else:
                 print("Aucun client trouvé dans la base de donnée avec ce nom.")
 
-
-
-
-
-
-
-
-
-
-
-
-            ###########################
-
-
-
-
-            # Enregistrez le fichier s'il a l'extension autorisée
+            # Enregistremnt du fichier s'il a l'extension autorisée
             with open(directory+file.filename, "wb") as file_object:
                 file_object.write(contenuFile)
             print("File Uploaded !")
             message="Fichier '{}' telecharge avec succes.".format(file.filename)
-            #response = RedirectResponse("/mainAPI")
-            #response.set_cookie(key="access_token", value=current_user, httponly=True)
-            #response.set_cookie(key="file", value=file.file.read(), httponly=True)
-            #return response
+            
             response = RedirectResponse(url="/")
             response.headers["Location"] = "/?message="+message
             response.headers["access_token"] = token
             response.headers["token_type"] = "bearer"
             response.headers["message"] = "message"
             return response 
-            #return templates.TemplateResponse("index.html", {"request": request,"access_token": token ,"message":message, "token_type": "bearer"})
         else:
             response = RedirectResponse(url="/")
             response.headers["Location"] = "/?message=Le nom saisie dans le fichier est incorrect"
@@ -231,9 +204,6 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
         response = RedirectResponse(url="/")
         response.headers["Location"] = "/?message=Extension de fichier non autorisée. Les fichiers .txt sont autorisés."
         return response
-        #return templates.TemplateResponse("index.html", {"request": request,"message": "Extension de fichier non autorisée. Les fichiers .txt sont autorisés."})
-  
-
 
 class Handler(FileSystemEventHandler):
     
@@ -241,26 +211,6 @@ class Handler(FileSystemEventHandler):
         if event.is_directory:
             return
         
-        
-        
 
-app.include_router(router)
 if __name__ == '__main__':
-
-    chemin_dossier = ".\DemandesClients"
-
-    """event_handler = Handler()
-    observer = Observer()
-    observer.schedule(event_handler, path=chemin_dossier, recursive=False)"""
-
-    #print(f"Surveillance du dossier : {chemin_dossier}")
-    #observer.start()
-    """try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("Application closed")
-        observer.stop()
-        sys.exit(0)
-    observer.join()
-    print("Application closed")"""
+    app.include_router(router)

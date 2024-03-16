@@ -1,6 +1,5 @@
-from fastapi import FastAPI, Depends, APIRouter
+from fastapi import FastAPI, APIRouter
 from fastapi.security import HTTPBearer
-import uvicorn
 import re
 from utils import *
 
@@ -19,19 +18,11 @@ Description : L'API Evaluation de propriété nous sert à analyser la
 app = FastAPI()
 securite = HTTPBearer()
 
-token_EvalProp = "dfeferjclefekzffS22EDkfazc"
 router = APIRouter()
 
 @router.post("/evaluation_propriete")
 @app.post('/evaluation_propriete')
-async def evaluation_propriete(description : str, token: str = Depends(oauth2_scheme)):
-    
-    """if credentials.credentials != token_EvalProp:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
-        )
-    else :
-        print("Success authentication token")"""
+async def evaluation_propriete(description : str):
 
     #print(description)
     valeur = 0
@@ -58,6 +49,3 @@ async def evaluation_propriete(description : str, token: str = Depends(oauth2_sc
 
     print("Evaluation de la propriete estimée à : ", valeur)        
     return valeur
-
-if __name__ == '__main__':
-    uvicorn.run(app, host="localhost", port=8001)
