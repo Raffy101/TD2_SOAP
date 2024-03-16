@@ -31,10 +31,23 @@ idClient= 1
 @app.post('/creationDonneeClients')
 async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth2_scheme)):
     
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid authentication credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
     print("current_user_token =", token)
-    if token == 'None' or token == None:
+    """if token == 'None' or token == None:
         message = "Authorization Needed !"
-        return RedirectResponse(url=f"http://localhost:8000/?message={message}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"http://localhost:8000/?message={message}", status_code=status.HTTP_303_SEE_OTHER)"""
 
     print(f"Requête reçue avec demande_client : {demande_client}")
     #if os.path.isfile(demande_client) and demande_client.endswith('.txt'):

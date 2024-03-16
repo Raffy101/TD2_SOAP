@@ -31,7 +31,13 @@ Utilisation :
 
 Le client accède à l'interface via l'url suivant : http://localhost:8000
 
+Ici on suppose que le client à déjà un compte sur la base de données de la banque. Ainsi, le client doit se connecter.
+Voici quelques clients :
+username = DoeJ, password = loikujytgrehujrjrsjd
+username = SmithW, password = poiuytreza
+username = DupontJ, password = azertyuiop
+
 Sur l'interface, le client peut choisir de déposer soit même un fichier txt (avec la description textuel) ou bien
 directement saisir la demande sur le site.
 
-Sur un autre onglet il pourra consulter le résultat obtenu en saissant son nom ( s'il a au préhalable effectuer une demande ).
+Sur un autre onglet, il pourra consulter le résultat obtenu en saissant son nom ( s'il a au préalable effectuer une demande ).

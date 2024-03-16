@@ -9,8 +9,6 @@ from APIs.API_DecisionApprobation import router as routerDecisionApprobation
 from utils import router as routerGetCurrentUserActive
 from fastapi import Request, Depends,FastAPI, APIRouter, HTTPException, status, Response, Form
 import uvicorn
-from API_Main import Handler
-from watchdog.observers import Observer
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 from datetime import timedelta

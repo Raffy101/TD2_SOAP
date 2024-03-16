@@ -133,6 +133,7 @@
                   var submit = document.getElementById('submitting');
                   submit.onclick = function() {
                     document.getElementById("loading-overlay").style.display = "block";
+                    window.scrollTo(0, 0);
                   }
                   document.addEventListener("load", function() {
                         document.getElementById("loading-overlay").style.display = "none";
