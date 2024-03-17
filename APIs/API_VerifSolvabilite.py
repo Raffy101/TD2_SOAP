@@ -38,7 +38,7 @@ def verification_solvabilite(salaireMensuel : str, depenseMensuel : str, calcul_
     solvabilite = 0
 
     # On vérifie que le temps de remboursement soit inférieur à 10 ans et Un score Positif
-    if ratioAnnee < 10.0 and calcul_score > 0 :
+    if (ratioAnnee > 0 and ratioAnnee < 10.0) and calcul_score > 0 :
         solvabilite = 1
     else : 
         solvabilite = 0
