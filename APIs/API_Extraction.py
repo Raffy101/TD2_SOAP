@@ -1,13 +1,9 @@
-#pip install twisted
-#pip install spyne 
-
-from fastapi import FastAPI, Depends, status, APIRouter
+from fastapi import FastAPI, APIRouter
 import spacy
 import re
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security import OAuth2PasswordBearer
 from utils import *
-from fastapi.responses import RedirectResponse
 
 '''
 ###########################################################################
@@ -22,7 +18,6 @@ Description : L'API d'extraction d'information nous permet de pouvoir
 '''
 
 app = FastAPI()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 router = APIRouter()
 
 idClient= 1
@@ -31,20 +26,6 @@ idClient= 1
 @app.post('/creationDonneeClients')
 async def CreationDonneeClients(demande_client : str, token: str = Depends(oauth2_scheme)):
     
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid authentication credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-    
-    print("current_user_token =", token)
     """if token == 'None' or token == None:
         message = "Authorization Needed !"
         return RedirectResponse(url=f"http://localhost:8000/?message={message}", status_code=status.HTTP_303_SEE_OTHER)"""

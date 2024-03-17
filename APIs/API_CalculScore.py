@@ -22,7 +22,7 @@ router = APIRouter()
 
 @router.post("/calcul_score")
 @app.post('/calcul_score')
-async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankRuptcy: int):
+async def calcul_score_endpoint(totalCredit: int, nbPayementRetard: int, nbBankRuptcy: int, token: str = Depends(oauth2_scheme)):
     
     score = 0
 

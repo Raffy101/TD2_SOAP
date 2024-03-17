@@ -22,7 +22,7 @@ router = APIRouter()
 
 @router.post("/evaluation_propriete")
 @app.post('/evaluation_propriete')
-async def evaluation_propriete(description : str):
+async def evaluation_propriete(description : str, token: str = Depends(oauth2_scheme)):
 
     #print(description)
     valeur = 0

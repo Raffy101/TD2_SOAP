@@ -24,7 +24,7 @@ router = APIRouter()
 
 @router.post("/decision_credit")
 @app.post('/decision_credit')
-async def decision_credit_endpoint(solvabilite : int):
+async def decision_credit_endpoint(solvabilite : int, token: str = Depends(oauth2_scheme)):
 
     if int(solvabilite) == 1 :
         resultat = "ACCEPTE"

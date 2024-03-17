@@ -23,7 +23,7 @@ router = APIRouter()
 
 @router.post("/verification_solvabilite")
 @app.post('/verification_solvabilite')
-def verification_solvabilite(salaireMensuel : str, depenseMensuel : str, calcul_score : int,dureeDuPret : str):
+def verification_solvabilite(salaireMensuel : str, depenseMensuel : str, calcul_score : int,dureeDuPret : str, token: str = Depends(oauth2_scheme)):
 
     # Dans le cas où Salaire et Dépense mensuel contiendrait dans la chaîne de caractère une devise monaitaire ! 
     list_mots1 = re.findall(r'\w+', salaireMensuel)

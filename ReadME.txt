@@ -16,6 +16,11 @@ package supplémentaire pour pouvoir lancer l'application
 
 --> pip install fastapi
 
+--> pip install passlib
+
+--> pip install python-jose
+
+--> pip install pydantic
 -------------------------------------------------------------------
 
 Procédure de lancement du projet.
@@ -36,7 +41,7 @@ Utilisation :
 
 Le client accède à l'interface via l'url suivant : http://localhost:8000
 
--- Connection 
+-- Connexion 
 
 Ici on suppose que le client à déjà un compte sur la base de données de la banque. Ainsi, le client doit se connecter.
 Voici quelques clients :

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import declarative_base,sessionmaker, relationship
 from passlib.context import CryptContext
+import urllib.parse
 
 engine = create_engine('sqlite:///./DataBase/baseDonneeClients.db', echo=False)
 Session = sessionmaker(bind=engine)
@@ -97,6 +98,7 @@ async def get_current_active_user(
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+#Creation token simple test
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
@@ -106,6 +108,30 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+#Creation du token jwt
+"""def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    header = {"alg": ALGORITHM, "typ": "JWT"}
+    to_encode = data.copy()
+
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    
+    to_encode.update({"iat": datetime.utcnow(), "exp": expire})
+    # Encode the header
+    encoded_header = jwt.encode(header, key=None, algorithm=ALGORITHM)
+    # Encode the payload
+    encoded_payload = jwt.encode(to_encode, key=None, algorithm=ALGORITHM)
+    # Concatenate header and payload with a period
+    encoded_token = encoded_header.decode('utf-8') + "." + encoded_payload.decode('utf-8')
+    # Calculate the signature
+    signature = jwt.encode(encoded_token.encode('utf-8'), key=SECRET_KEY, algorithm=ALGORITHM)
+    # Concatenate token and signature
+    encoded_jwt = encoded_token + "." + signature.decode('utf-8')
+
+    return encoded_jwt"""
 
 def authenticate_user(username: str, password: str):
     client_trouve = session.query(User).filter(User.username == username).first()

@@ -53,6 +53,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 current_user = None
 
+
 @router.post("/token")
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
@@ -63,11 +64,14 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user = authenticate_user(form_data.username, form_data.password)
 
     if not user:
-        raise HTTPException(
+        response = RedirectResponse(url="/")
+        response.headers["Location"] = "/?message=Incorrect username or password !"
+        return response
+        """raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        )"""
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -169,18 +173,11 @@ def creer_fichier(request: Request, texte: str = Form(...)):
         url = "http://localhost:8000/upload_file"
         files = {"file": open(nomFichier, "rb")}  # Replace "example.txt" with the path to your file
         cookies = {"access_token": token, "name": cookie["name"]}
-        response = requests.post(url, files=files, cookies=cookies)    
-        print(response)
-        if response.status_code == 200:
-            message="La demande a été envoyé avec succès."
-        else:
-            message="Erreur durant l'execution de la procedure des informations sont manquantes !\n Veuillez vous assurer de renseigner dans la demande : NomduClient, la description de la propriete, les revenus Mensuels et les depenses mensuelles"
-            import urllib.parse
-            message= urllib.parse.quote_plus(message)
-        return RedirectResponse(url=f"/?message={message}")
+
+        response = requests.post(url, files=files, cookies=cookies)
+        message = "La demande a été envoyé avec succès."
     
-    message="Aucun client trouvé avec ce nom."
-    return RedirectResponse(url=f"/?message={message}")
+    return Response(content=response.content, status_code=response.status_code)
 
 app.include_router(router)
 
