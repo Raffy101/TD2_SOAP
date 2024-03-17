@@ -148,7 +148,14 @@ def deconnexion(response: Response):
 @app.post('/cree_fichier')
 def creer_fichier(request: Request, texte: str = Form(...)):
     #message = request.args.get('La demande a été envoyé avec succès.', None)# post
-    
+    cookie = request.cookies
+
+    if "access_token" in  cookie:
+        token = cookie["access_token"]
+    else:
+        message="Veuillez vous connecter !"
+        return RedirectResponse(url=f"/?message={message}")
+
     if texte:
         nlp = spacy.load("fr_core_news_sm")
         doc = nlp(texte)
@@ -165,18 +172,18 @@ def creer_fichier(request: Request, texte: str = Form(...)):
 
         with open(nomFichier, 'w', encoding="utf-8") as fichier:
             fichier.write(texte)
-       
-
-        cookie = request.cookies
-        token = cookie["access_token"]
+        
         print("creefichieeeeeeer=",token)
+
+        
         url = "http://localhost:8000/upload_file"
         files = {"file": open(nomFichier, "rb")}  # Replace "example.txt" with the path to your file
         cookies = {"access_token": token, "name": cookie["name"]}
 
         response = requests.post(url, files=files, cookies=cookies)
-        message = "La demande a été envoyé avec succès."
-    
+    else:
+        message="Erreur durant l'exécution de la procédure, des informations sont manquantes ! \n Veuillez vous assurer de renseigner dans la demande : \n NomduClient, la description de la propriété, les revenus Mensuels et les depenses mensuelles"
+        return RedirectResponse(url=f"/?message={message}")
     return Response(content=response.content, status_code=response.status_code)
 
 app.include_router(router)

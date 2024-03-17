@@ -86,9 +86,11 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
             }
             print(data)
             print("tokenonModified=", token)
-            if token == None or token == 'None':
-                print("token vide!")
-                return
+            if token == None or token == 'None' or token == '':
+                print("Error INVALID Token !")
+                response = RedirectResponse(url="/")
+                response.headers["Location"] = "/?message=Veuillez vous connecter !"
+                return response 
             try:
                 headers['Authorization'] = f"Bearer {token}"
                 donneeClient = requests.post(api_Extraction_url, params=data, headers=headers).json()
@@ -101,7 +103,7 @@ def upload_file(response: Response, request: Request, message : str = '', file: 
                     
                     manqueInfos = "Erreur durant l'execution de la procedure des informations sont manquantes !\n Veuillez vous assurer de renseigner dans la demande : NomduClient, la description de la propriete, les revenus Mensuels et les depenses mensuelles"
                     urlencodemsg= urllib.parse.quote_plus(manqueInfos)
-                    
+
                     response.headers["Location"] = f"/?message={urlencodemsg}"
                     return response 
             except:

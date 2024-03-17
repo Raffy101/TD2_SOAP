@@ -147,7 +147,7 @@
                 
                 <form method="POST" action="{{ url_for('creer_fichier') }}" enctype="multipart/form-data">
                   <div class="home-filter1">
-                    <textarea name="texte" rows="10" cols="75" placeholder="Saisissez votre texte ici" required></textarea>
+                    <textarea id="demandetxt" name="texte" rows="10" cols="75" placeholder="Saisissez votre texte ici" required></textarea>
                   </div>
                   <div class="home-search">
                     <button><img alt="image" id="submitting2" src="{{ url_for('static', path='public/Icons/search.svg') }}" type="submit" value="Envoyer la demande"/></button>
@@ -156,8 +156,11 @@
                 <script>
                   var submit = document.getElementById('submitting2');
                   submit.onclick = function() {
-                    document.getElementById("loading-overlay").style.display = "block";
-                    window.scrollTo(0, 0);
+                    if(document.getElementById("demandetxt").value.trim() !== "")
+                    {
+                      document.getElementById("loading-overlay").style.display = "block";
+                      window.scrollTo(0, 0);
+                    } 
                   }
                   document.addEventListener("load", function() {
                         document.getElementById("loading-overlay").style.display = "none";
